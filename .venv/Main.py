@@ -5,15 +5,19 @@ import random
 import pandas
 import math
 
-###Define Params
+###Define Pfade
 basis = sterbetafel.Sterbetafel(r'''C:\Users\Chroc\Desktop\forElla\Sterbetafel_Basisisszenario.csv''')
 lang = sterbetafel.Sterbetafel(r'''C:\Users\Chroc\Desktop\forElla\Sterbetafel_Langlebigkeitsszenario.csv''')
 extrem = sterbetafel.Sterbetafel(r'''C:\Users\Chroc\Desktop\forElla\Sterbetafel_Extremszenario.csv''')
-
 wachstum = pandas.read_csv(r'''C:\Users\Chroc\Desktop\forElla\gbm_mean_returns_head50.csv''')
 
-i0 = 100000
 
+##DefineParams
+i0 = 100000
+anzahl_rentner = 80
+anzahl_lv = 20
+anzahl_durchlaeufe = 100
+used_sterbetafel = extrem
 
 def getRenteForAge(alter):
     a = 0
@@ -40,27 +44,24 @@ auszahlung = getAuszahlungForAge(30)
 
 #print("Start Simulation")
 
-for x in range(0, 1000):
+for x in range(0, anzahl_durchlaeufe):
     listOfPeople = []
     assets = 0
 
     #print("Build Lists!")
 
-    for person in range(0, 80):
+    for person in range(0, anzahl_rentner):
         alter = 65  # random.randint(20, 100)
-        listOfPeople.append(PersonRente.PersonRente(alter, basis, rente))
+        listOfPeople.append(PersonRente.PersonRente(alter, used_sterbetafel, rente))
 
-    for person in range(0, 20):
+    for person in range(0, anzahl_lv):
         alter = 30  # random.randint(20, 100)
-        listOfPeople.append(PersonVersicherung.PersonVersicherung(alter, basis, auszahlung))
+        listOfPeople.append(PersonVersicherung.PersonVersicherung(alter, used_sterbetafel, auszahlung))
 
     assets += len(listOfPeople) * i0
-    assets -= 80 * rente
+    assets -= anzahl_rentner * rente
     #print("start Simulating!")
     for year in range(0, 35):
-        ##hier kommt die Berechnung für die Zinsen von dem Jahr
-        f: float = wachstum.loc[year + 1]["return"]
-        exp: float = math.exp(f)
 
         leben_noch = 0
         for person in listOfPeople:
@@ -74,7 +75,7 @@ for x in range(0, 1000):
         assets = assets * math.exp(wachstum.loc[year + 1]["return"])
          #math.exp(wachstum.loc[year + 1]["return"])
         #print("Jahr: " + str(2023 + year) + " Assets: " + str(assets) + " Noch am Leben: " + str(leben_noch))
-    print(assets / 100)
+    print(assets / (anzahl_rentner + anzahl_lv))
 
 
 # with open("ergebnis.csv", "a") as f:
