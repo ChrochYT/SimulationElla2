@@ -4,15 +4,12 @@ import sterbetafel
 import random
 class PersonRente:
 
-    def __init__(self, alter, sterbetafel: sterbetafel.Sterbetafel):
+    def __init__(self, alter, sterbetafel: sterbetafel.Sterbetafel, rate):
         self.alter = alter
         self.i = 0
         self.lebt = True
         self.sterbetafel = sterbetafel
-        self.a = 0
-        for j in range(0, 35):
-            self.a += (1-self.sterbetafel.getChanceFor(2023+j,self.alter+j)) * (0.9900990099009901**j)
-        self.rente = 100000 / self.a
+        self.rente = rate
 
 
     def calculateOutput(self):
